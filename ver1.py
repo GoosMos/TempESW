@@ -11,12 +11,16 @@ import Joystick
 from BasketBall import BasketBall
 from BasketBall import Hoop
 
+# 임베디드 사용 예시, 웹 서버, 모니터 확인
 
 joystick = Joystick.Joystick()
 JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height)
 balls = []
 LifeCount = 5
 hoop = Hoop()
+#net = Image.open("coat.png")
+net = Image.open("background.png")
+net = net.resize((240, 240))
 
 # 이미지의 모드 설정 == 디스플레이 전체에 대한 초기화
 my_image = Image.new("RGB", (joystick.width, joystick.height)) 
@@ -49,11 +53,12 @@ while True:
         print("남은 시도 횟수 : ", LifeCount)
         balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
         # 함수 호출 필요
-
+    my_image.paste(net)
+    
     for ball in balls:
         ball.move()
         my_draw.ellipse((ball.x - 5, ball.y - 5, ball.x + 5, ball.y + 5), fill = (0, 0, 0))
-
+    
     if LifeCount == 0: break
 
     JungDaeMan.move(command)
@@ -61,11 +66,10 @@ while True:
     #그리는 순서가 중요합니다. 배경을 먼저 깔고 위에 그림을 그리고 싶었는데 그림을 그려놓고 배경으로 덮는 결과로 될 수 있습니다.
     my_draw.ellipse(tuple(JungDaeMan.position), outline = JungDaeMan.outline, fill = (0, 0, 0))
     my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100))
-    
     my_draw.rectangle((hoop.hoop_x, hoop.hoop_y, hoop.hoop_x + hoop.hoop_width, hoop.hoop_y + hoop.hoop_hegith), outline=(0, 0, 255))
     my_draw.rectangle((0, 0, (JungDaeMan.power - 5) * 24, 5), fill = (255, 255, 0, 100)) # 에너지 바
     my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
     for i in range(1, LifeCount + 1) :
-        my_draw.ellipse((0 + 20 * i, 15, 0 + 20 * i + 10, 25), outline = JungDaeMan.outline, fill = (0, 0, 0))
+        my_draw.ellipse((0 + 20 * i, 15, 0 + 20 * i + 10, 25), outline = JungDaeMan.outline, fill = (255, 255, 255))
     # balls = [ball for ball in balls if ball.x <= joystick.width and ball.y <= joystick.height]
     joystick.disp.image(my_image)
