@@ -6,7 +6,7 @@ from digitalio import DigitalInOut, Direction
 from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import st7789
 import numpy as np
-print("Hellllllll")
+
 class Joystick:
     def __init__(self):
         self.cs_pin = DigitalInOut(board.CE0)

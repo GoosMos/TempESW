@@ -6,22 +6,17 @@ from digitalio import DigitalInOut, Direction
 from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import st7789
 import numpy as np
-print("Hellllllll")
 # 좌상단 (0, 0), 우하단 (240, 240)
 
 class JungDeaMan:
     def __init__(self, width, height) :
         # 정대만이 가져야하는 변수들
         # 팔각도, 외형, 시작점
-
         # 팔각도는 0 ~ 90도
         self.shoulderAngel = 45
         self.power = 10
-
         self.appearance = 'circle'
         self.outline = "#FFFFFF"
-
-
         self.position = np.array([0, 220 , 40, 240])
 
 

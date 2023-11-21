@@ -1,5 +1,5 @@
 import math
-print("Hellllllll")
+
 class BasketBall:
     def __init__(self, x, y, power, angle):
         self.x = x

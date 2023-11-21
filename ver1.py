@@ -11,8 +11,6 @@ import Joystick
 from BasketBall import BasketBall
 from BasketBall import Hoop
 
-print("Hellllllll")
-
 
 joystick = Joystick.Joystick()
 JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height)
@@ -24,8 +22,6 @@ hoop = Hoop()
 my_image = Image.new("RGB", (joystick.width, joystick.height)) 
 my_draw = ImageDraw.Draw(my_image)
 my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
-print("HElloo")
-
 
 while True:
     my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
@@ -67,7 +63,8 @@ while True:
     my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100))
     
     my_draw.rectangle((hoop.hoop_x, hoop.hoop_y, hoop.hoop_x + hoop.hoop_width, hoop.hoop_y + hoop.hoop_hegith), outline=(0, 0, 255))
-    my_draw.rectangle((0, 0, (JungDaeMan.power - 5) * 24, 5), fill = (255, 255, 0, 100))
+    my_draw.rectangle((0, 0, (JungDaeMan.power - 5) * 24, 5), fill = (255, 255, 0, 100)) # 에너지 바
+    my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
     for i in range(1, LifeCount + 1) :
         my_draw.ellipse((0 + 20 * i, 15, 0 + 20 * i + 10, 25), outline = JungDaeMan.outline, fill = (0, 0, 0))
     # balls = [ball for ball in balls if ball.x <= joystick.width and ball.y <= joystick.height]
