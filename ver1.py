@@ -11,6 +11,8 @@ import Joystick
 from BasketBall import BasketBall
 from BasketBall import Hoop
 
+print("Hellllllll")
+
 
 joystick = Joystick.Joystick()
 JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height)

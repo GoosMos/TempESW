@@ -6,7 +6,7 @@ from digitalio import DigitalInOut, Direction
 from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import st7789
 import numpy as np
-
+print("Hellllllll")
 # 좌상단 (0, 0), 우하단 (240, 240)
 
 class JungDeaMan:
