@@ -1,33 +1,99 @@
-import time
-import random
 from colorsys import hsv_to_rgb
-import board
-from digitalio import DigitalInOut, Direction
 from PIL import Image, ImageDraw, ImageFont
-from adafruit_rgb_display import st7789
 import numpy as np
 import JungDeaMan
 import Joystick
-from BasketBall import BasketBall
-from BasketBall import Hoop
+import Defender
+import math
+import Defender
 
-# 임베디드 사용 예시, 웹 서버, 모니터 확인
+hoop_position = (210, 130, 240, 140)
+score = 0 # 총 점수
+
+class BasketBall:
+    def __init__(self, x, y, power, angle):
+        self.x = x
+        self.y = y
+        self.vx = power * math.cos(math.radians(angle))  # x축 방향의 속도
+        self.vy = power * math.sin(math.radians(angle))  # y축 방향의 속도
+        self.gravity = 0.5
+        self.damping_factor = 0.9
+        self.scored = False
+
+    def move(self, defender):
+        self.x += self.vx
+        self.y -= self.vy
+        self.vy -= self.gravity  # y축 방향의 속도를 업데이트
+
+        if defender.position[0] <= self.x <= defender.position[2] and \
+        defender.position[1] <= self.y <= defender.position[3] :
+            self.vx = -self.vx * self.damping_factor
+            self.vy = -self.vy * self.damping_factor
+            print("Blocked")
+
+
+        # 화면 범위 내로 공의 위치를 조정
+        if self.x < 0 or self.x > 240:
+            self.vx = 0.8 * (-self.vx * self.damping_factor)  # x축 방향의 속도를 반전시킴
+            self.x = max(0, min(240, self.x))  # x좌표가 화면 범위를 벗어나지 않도록 조정
+            self.damping_factor *= 0.4
+        if self.y < 0 or self.y > 240:
+            self.vy = 0.8 * (-self.vy  * self.damping_factor) # y축 방향의 속도를 반전시킴
+            self.y = max(0, min(240, self.y))  # y좌표가 화면 범위를 벗어나지 않도록 조정
+            self.damping_factor *= 0.4
+
+        # 백보드와 충돌 처리
+        if hoop_position[0] <= self.x <= hoop_position[2] and \
+        hoop_position[1] <= self.y <= hoop_position[3] :
+            if self.x <= (hoop_position[0] + hoop_position[2])/2:
+                self.vx = -self.vx * self.damping_factor * 0.8
+                self.vy = -self.vy * self.damping_factor * 0.8
+            else :
+                self.vx = 0
+                if not self.scored :
+                    global score
+                    score += 3
+                    print("Score : ", score)
+                    self.scored = True
+        else :
+            self.scored = False
+
+        
+        if self.damping_factor < 0.2 :
+            self.damping_factor == 0
+
+    def isGround(self) :
+        return self.y >= 240 and self
+
 
 joystick = Joystick.Joystick()
-JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height)
+JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height) # 정대만
+defender = Defender.Defender(joystick.width, joystick.height) # 수비수
 balls = []
-LifeCount = 5
-hoop = Hoop()
-net = Image.open("/home/kau-esw/project/background.png")
-net = net.resize((240, 240))
+LifeCount = 5 # 총 시도횟수
+ballImage = Image.open("/home/kau-esw/project/basketball.png").resize((10, 10))
+net = Image.open("/home/kau-esw/project/background.png").resize((240, 240))
+startImage = Image.open("/home/kau-esw/project/start.png").resize((240, 240))
+DeaMan = Image.open("/home/kau-esw/project/DeaMan.png").resize((30, 30))
+DefenderImage = Image.open("/home/kau-esw/project/defense.png").resize((30, 30))
 
 # 이미지의 모드 설정 == 디스플레이 전체에 대한 초기화
 my_image = Image.new("RGB", (joystick.width, joystick.height)) 
 my_draw = ImageDraw.Draw(my_image)
 my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
 
+prev_button_A = True
+
 while True:
-    my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
+    if not joystick.button_A.value and prev_button_A:
+        print("시작합니다.")
+        break
+    my_image.paste(startImage)
+    joystick.disp.image(my_image)
+
+prev_button_A = joystick.button_A.value
+
+while True:
     command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
     
     if not joystick.button_U.value:  # up pressed
@@ -46,28 +112,52 @@ while True:
         command['right_pressed'] = True
         command['move'] = True
 
-    if not joystick.button_A.value:
+    if not joystick.button_A.value and prev_button_A:
         LifeCount -= 1
-        print("Shoot")
+        if LifeCount == -1: break
         print("남은 시도 횟수 : ", LifeCount)
         balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
-        # 함수 호출 필요
-    my_image.paste(net)
-
-    for ball in balls:
-        ball.move()
-        my_draw.ellipse((ball.x - 5, ball.y - 5, ball.x + 5, ball.y + 5), fill = (0, 0, 0))
-    
-    #if LifeCount == 0: break
+        
 
     JungDaeMan.move(command)
+    defender.move(JungDaeMan.position[0])
 
-    #그리는 순서가 중요합니다. 배경을 먼저 깔고 위에 그림을 그리고 싶었는데 그림을 그려놓고 배경으로 덮는 결과로 될 수 있습니다.
-    my_draw.ellipse(tuple(JungDaeMan.position), outline = JungDaeMan.outline, fill = (0, 0, 0))
-    my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100))
-    my_draw.rectangle((0, 0, (JungDaeMan.power - 5) * 24, 5), fill = (255, 255, 0, 100)) # 에너지 바
+    if LifeCount == -1: break
+    prev_button_A = joystick.button_A.value
+
+
+    my_image.paste(net)
+    my_image.paste(DefenderImage, (defender.position[0], defender.position[1]))
+    my_image.paste(DeaMan, (JungDaeMan.position[0], JungDaeMan.position[1])) # 정대만 그리기
+    my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100)) # 3점 라인 바
+    my_draw.rectangle((0, 0, (JungDaeMan.position[0] / 120) * 240, 5), fill = (255, 255, 0, 100)) # 3점 라인 바
     my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
+    
     for i in range(1, LifeCount + 1) :
-        my_draw.ellipse((0 + 20 * i, 15, 0 + 20 * i + 10, 25), outline = JungDaeMan.outline, fill = (255, 255, 255))
-    joystick.disp.image(my_image)
-    if LifeCount == 0: break
+        my_image.paste(ballImage, (20 * i, 15))
+
+    for ball in balls:
+        ball.move(defender)
+        my_image.paste(ballImage, (int(ball.x), int(ball.y)))
+    my_draw.rectangle((hoop_position[0], hoop_position[1],
+                        hoop_position[2], hoop_position[3]), fill = (0, 0, 0))
+    
+    balls = [ball for ball in balls if not ball.isGround()]
+    my_draw.text((0, 30), f"Score : {score}", fill = (255, 255, 255))
+    joystick.disp.image(my_image) 
+
+# while balls.size() != 0:
+#     for ball in balls:
+#         ball.move(defender)
+
+while LifeCount == -1 and len(balls) > 0: 
+    # 게임이 끝났고, 아직 화면에 남아있는 공이 있을 경우
+    for ball in balls:
+        ball.move(defender)
+        if ball.y > 240: # 공이 화면 밖으로 나갔다면
+            balls.remove(ball) # 해당 공을 제거합니다.
+
+
+my_image.paste(startImage)
+my_draw.text((80, 120), f"Game over : {score}", fill = (0, 0, 0))
+joystick.disp.image(my_image)
