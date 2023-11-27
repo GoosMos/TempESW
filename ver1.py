@@ -42,19 +42,20 @@ class BasketBall:
             self.y = max(0, min(240, self.y))  # y좌표가 화면 범위를 벗어나지 않도록 조정
             self.damping_factor *= 0.4
 
-        # 백보드와 충돌 처리
-        if hoop_position[0] <= self.x <= hoop_position[2] and \
+        if hoop_position[0] <= self.x <= hoop_position[0] + 3 and \
         hoop_position[1] <= self.y <= hoop_position[3] :
-            if self.x <= (hoop_position[0] + hoop_position[2])/2:
-                self.vx = -self.vx * self.damping_factor * 0.8
-                self.vy = -self.vy * self.damping_factor * 0.8
-            else :
-                self.vx = 0
-                if not self.scored :
-                    global score
-                    score += 3
-                    print("Score : ", score)
-                    self.scored = True
+            self.vx = -self.vx 
+            self.vy = -self.vy 
+        
+        # 백보드와 충돌 처리
+        if hoop_position[0] + 3 < self.x <= hoop_position[2] and \
+        hoop_position[1] <= self.y <= hoop_position[3] :
+            self.vx = 0
+            if not self.scored :
+                global score
+                score += 3
+                print("Score : ", score)
+                self.scored = True
         else :
             self.scored = False
 
@@ -89,6 +90,7 @@ while True:
         print("시작합니다.")
         break
     my_image.paste(startImage)
+    my_draw.text((90, 120), f"Press A key", fill = (0, 0, 0))
     joystick.disp.image(my_image)
 
 prev_button_A = joystick.button_A.value
@@ -146,9 +148,6 @@ while True:
     my_draw.text((0, 30), f"Score : {score}", fill = (255, 255, 255))
     joystick.disp.image(my_image) 
 
-# while balls.size() != 0:
-#     for ball in balls:
-#         ball.move(defender)
 
 while LifeCount == -1 and len(balls) > 0: 
     # 게임이 끝났고, 아직 화면에 남아있는 공이 있을 경우

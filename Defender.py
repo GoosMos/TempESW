@@ -18,8 +18,8 @@ class Defender:
         self.position[0] += temp
         self.position[2] += temp
 
-        self.position[0] = np.clip(self.position[0], 55, 240)
-        self.position[2] = np.clip(self.position[2], 55, 240)
+        self.position[0] = np.clip(self.position[0], 55, 200)
+        self.position[2] = np.clip(self.position[2], 55, 200)
         
         if not self.jump and random.random() < 0.1: # 점프 상태가 아닐 때, 랜덤으로 점프
             self.jump = True
