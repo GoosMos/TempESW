@@ -7,6 +7,7 @@ import Defender
 import math
 import Defender
 import os
+import time
 
 hoop_position = (210, 130, 240, 140)
 
@@ -95,7 +96,7 @@ joystick = Joystick.Joystick()
 JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height) # 정대만
 defender = Defender.Defender(joystick.width, joystick.height) # 수비수
 balls = []
-LifeCount = 5 # 총 시도횟수
+
 ballImage = Image.open("/home/kau-esw/project/basketball.png").resize((10, 10))
 net = Image.open("/home/kau-esw/project/background.png").resize((240, 240))
 startImage = Image.open("/home/kau-esw/project/start.png").resize((240, 240))
@@ -105,95 +106,125 @@ DefenderImage = Image.open("/home/kau-esw/project/defense.png").resize((30, 30))
 # 이미지의 모드 설정 == 디스플레이 전체에 대한 초기화
 my_image = Image.new("RGB", (joystick.width, joystick.height)) 
 my_draw = ImageDraw.Draw(my_image)
-my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
-
+# my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
 prev_button_A = True
-score = 0 # 총 점수
-while True:
-    if not joystick.button_A.value and prev_button_A:
-        print("시작합니다.")
-        break
-    my_image.paste(startImage)
-    my_draw.text((90, 120), f"Press A key", fill = (0, 0, 0))
-    joystick.disp.image(my_image)
-
-prev_button_A = joystick.button_A.value
 
 while True:
-    command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
-    
-    if not joystick.button_U.value:  # up pressed
-        command['up_pressed'] = True
-        command['move'] = True
+    score = 0 # 총 점수 초기화
+    LifeCount = 5 # 총 시도횟수 초기화
 
-    if not joystick.button_D.value:  # down pressed
-        command['down_pressed'] = True
-        command['move'] = True
+    while True:
+        if not joystick.button_A.value and prev_button_A:
+            print("시작합니다.")
+            break
+        my_image.paste(startImage)
+        my_draw.text((90, 120), f"Press A key", fill = (0, 0, 0))
+        joystick.disp.image(my_image)
 
-    if not joystick.button_L.value:  # left pressed
-        command['left_pressed'] = True
-        command['move'] = True
-
-    if not joystick.button_R.value:  # right pressed
-        command['right_pressed'] = True
-        command['move'] = True
-
-    if not joystick.button_A.value and prev_button_A:
-        LifeCount -= 1
-        if LifeCount == -1: break
-        print("남은 시도 횟수 : ", LifeCount)
-        balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
-        
-
-    JungDaeMan.move(command)
-    defender.move(JungDaeMan.position[0])
-
-    if LifeCount == -1: break
     prev_button_A = joystick.button_A.value
 
+    while True:
+        command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
 
-    my_image.paste(net, (0, 0), net)
-    my_image.paste(DefenderImage, (defender.position[0], defender.position[1]), DefenderImage)
-    my_image.paste(DeaMan, (JungDaeMan.position[0], JungDaeMan.position[1]), DeaMan) # 정대만 그리기
-    my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100)) # 3점 라인 바
-    my_draw.rectangle((0, 0, (JungDaeMan.position[0] / 120) * 240, 5), fill = (255, 255, 0, 100)) # 3점 라인 바
-    my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
-    
-    for i in range(1, LifeCount + 1) :
-        my_image.paste(ballImage, (20 * i, 15), ballImage)
+        if not joystick.button_U.value:  # up pressed
+            command['up_pressed'] = True
+            command['move'] = True
 
-    for ball in balls:
-        ball.move(defender)
-        my_image.paste(ballImage, (int(ball.x), int(ball.y)), ballImage)
-    my_draw.rectangle((hoop_position[0], hoop_position[1],
-                        hoop_position[2], hoop_position[3]), fill = (0, 0, 0))
-    
-    balls = [ball for ball in balls if not ball.isGround()]
-    my_draw.text((0, 30), f"Score : {score}", fill = (255, 255, 255))
-    joystick.disp.image(my_image) 
+        if not joystick.button_D.value:  # down pressed
+            command['down_pressed'] = True
+            command['move'] = True
+
+        if not joystick.button_L.value:  # left pressed
+            command['left_pressed'] = True
+            command['move'] = True
+
+        if not joystick.button_R.value:  # right pressed
+            command['right_pressed'] = True
+            command['move'] = True
+
+        if not joystick.button_A.value and prev_button_A:
+            LifeCount -= 1
+            if LifeCount == -1: break
+            print("남은 시도 횟수 : ", LifeCount)
+            balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
+        prev_button_A = joystick.button_A.value
+
+        JungDaeMan.move(command)
+        defender.move(JungDaeMan.position[0])
 
 
-while LifeCount == -1 and len(balls) > 0: 
-    # 게임이 끝났고, 아직 화면에 남아있는 공이 있을 경우
-    for ball in balls:
-        ball.move(defender)
-        if ball.y > 240: # 공이 화면 밖으로 나갔다면
-            balls.remove(ball) # 해당 공을 제거합니다.
+        my_image.paste(net, (0, 0), net)
+        my_image.paste(DefenderImage, (defender.position[0], defender.position[1]), DefenderImage)
+        my_image.paste(DeaMan, (JungDaeMan.position[0], JungDaeMan.position[1]), DeaMan) # 정대만 그리기
+        my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100)) # 3점 라인 바
+        my_draw.rectangle((0, 0, (JungDaeMan.position[0] / 120) * 240, 5), fill = (255, 255, 0, 100)) # 3점 라인 바
+        my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
+        
+        for i in range(1, LifeCount + 1) :
+            my_image.paste(ballImage, (20 * i, 15), ballImage)
 
-save_score(score)
-scores = load_scores()
-for i, logscore in enumerate(scores):
-    print(f"{i + 1}위 : {logscore}")
+        for ball in balls:
+            ball.move(defender)
+            my_image.paste(ballImage, (int(ball.x), int(ball.y)), ballImage)
+        my_draw.rectangle((hoop_position[0], hoop_position[1],
+                            hoop_position[2], hoop_position[3]), fill = (0, 0, 0))
+        
+        balls = [ball for ball in balls if not ball.isGround()]
+        my_draw.text((0, 30), f"Score : {score}", fill = (255, 255, 255))
+        joystick.disp.image(my_image) 
 
-while True:
-    my_image.paste(startImage)
-    my_draw.text((80, 120), f"Game over : {score}", fill = (0, 0, 0))
+        if LifeCount == -1: break
+
+    while LifeCount >= 0 and len(balls) > 0: 
+        # 게임이 끝났고, 아직 화면에 남아있는 공이 있을 경우
+        command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
+        if LifeCount > 0: # 아직 던질 공이 남아있는 경우
+            if not joystick.button_U.value:  # up pressed
+                command['up_pressed'] = True
+                command['move'] = True
+
+            if not joystick.button_D.value:  # down pressed
+                command['down_pressed'] = True
+                command['move'] = True
+
+            if not joystick.button_L.value:  # left pressed
+                command['left_pressed'] = True
+                command['move'] = True
+
+            if not joystick.button_R.value:  # right pressed
+                command['right_pressed'] = True
+                command['move'] = True
+
+            if not joystick.button_A.value and prev_button_A:
+                LifeCount -= 1
+                print("남은 시도 횟수 : ", LifeCount)
+                balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
+            prev_button_A = joystick.button_A.value
+
+            JungDaeMan.move(command)
+            defender.move(JungDaeMan.position[0])
+
+        for ball in balls:
+            ball.move(defender)
+            if ball.y > 240: # 공이 화면 밖으로 나갔다면
+                balls.remove(ball) # 해당 공을 제거합니다.
+
+    save_score(score)
+    scores = load_scores()
     for i, logscore in enumerate(scores):
-        my_draw.text((80, 120 + 10 * i), f"{i + 1}위 : {logscore}", fill = (0, 0, 0))
-    joystick.disp.image(my_image)
+        print(f"{i + 1}th : {logscore}")
 
-    if not joystick.button_A.value and prev_button_A:
-        print("다시 하기")
-        # prev_button_A = joystick.button_A.value
+    while True:
+        my_image.paste(startImage)
+        my_draw.text((80, 100), f"Game over : {score}", fill = (0, 0, 0))
+        for i, logscore in enumerate(scores):
+            my_draw.text((100, 130 + 10 * i), f"{i + 1}th : {logscore}", fill = (255, 0, 0))
+        joystick.disp.image(my_image)
 
-# 기술, 완성도
+        if not joystick.button_A.value and prev_button_A:
+            print("다시 하기")
+            time.sleep(0.1)
+            break
+        
+        prev_button_A = joystick.button_A.value
+
