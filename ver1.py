@@ -128,19 +128,19 @@ while True:
     prev_button_A = joystick.button_A.value
 
 
-    my_image.paste(net)
-    my_image.paste(DefenderImage, (defender.position[0], defender.position[1]))
-    my_image.paste(DeaMan, (JungDaeMan.position[0], JungDaeMan.position[1])) # 정대만 그리기
+    my_image.paste(net, (0, 0), net)
+    my_image.paste(DefenderImage, (defender.position[0], defender.position[1]), DefenderImage)
+    my_image.paste(DeaMan, (JungDaeMan.position[0], JungDaeMan.position[1]), DeaMan) # 정대만 그리기
     my_draw.rectangle((0, 0, joystick.width, 5), fill = (255, 0, 0, 100)) # 3점 라인 바
     my_draw.rectangle((0, 0, (JungDaeMan.position[0] / 120) * 240, 5), fill = (255, 255, 0, 100)) # 3점 라인 바
     my_draw.rectangle((0, 5, (JungDaeMan.shoulderAngel / 90 * 240), 10), fill = (255, 0, 255)) # 각도 바
     
     for i in range(1, LifeCount + 1) :
-        my_image.paste(ballImage, (20 * i, 15))
+        my_image.paste(ballImage, (20 * i, 15), ballImage)
 
     for ball in balls:
         ball.move(defender)
-        my_image.paste(ballImage, (int(ball.x), int(ball.y)))
+        my_image.paste(ballImage, (int(ball.x), int(ball.y)), ballImage)
     my_draw.rectangle((hoop_position[0], hoop_position[1],
                         hoop_position[2], hoop_position[3]), fill = (0, 0, 0))
     
@@ -160,3 +160,5 @@ while LifeCount == -1 and len(balls) > 0:
 my_image.paste(startImage)
 my_draw.text((80, 120), f"Game over : {score}", fill = (0, 0, 0))
 joystick.disp.image(my_image)
+
+# 기술, 완성도

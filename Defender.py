@@ -11,10 +11,10 @@ class Defender:
 
     def move(self, user_x):
         self.user_x = user_x
-        self.position[0] = max(self.position[0], self.user_x + 5)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
-        self.position[2] = max(self.position[2], self.user_x + 35)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
+        self.position[0] = max(self.position[0], self.user_x + 15)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
+        self.position[2] = max(self.position[2], self.user_x + 45)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
         
-        temp = random.randint(-5, 5)
+        temp = random.randint(-10, 5)
         self.position[0] += temp
         self.position[2] += temp
 
