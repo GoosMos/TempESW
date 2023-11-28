@@ -6,9 +6,33 @@ import Joystick
 import Defender
 import math
 import Defender
+import os
 
 hoop_position = (210, 130, 240, 140)
-score = 0 # 총 점수
+
+def save_score(score) :
+    if os.path.exists("scores.txt"):
+        with open("scores.txt", 'r') as f:
+            scores = [int(line.strip()) for line in f.readlines()]
+    else:
+        scores = []
+    
+    scores.append(score)
+    scores.sort(reverse=True)
+    scores = scores[:5]
+
+    with open("scores.txt", 'w') as f:
+        for score in scores:
+            f.write(str(score) + '\n')
+
+def load_scores():
+    if os.path.exists("scores.txt"):
+        with open("scores.txt", 'r') as f:
+            scores = [int(line.strip()) for line in f.readlines()]
+    else:
+        scores = []
+
+    return scores
 
 class BasketBall:
     def __init__(self, x, y, power, angle):
@@ -84,7 +108,7 @@ my_draw = ImageDraw.Draw(my_image)
 my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
 
 prev_button_A = True
-
+score = 0 # 총 점수
 while True:
     if not joystick.button_A.value and prev_button_A:
         print("시작합니다.")
@@ -156,9 +180,20 @@ while LifeCount == -1 and len(balls) > 0:
         if ball.y > 240: # 공이 화면 밖으로 나갔다면
             balls.remove(ball) # 해당 공을 제거합니다.
 
+save_score(score)
+scores = load_scores()
+for i, logscore in enumerate(scores):
+    print(f"{i + 1}위 : {logscore}")
 
-my_image.paste(startImage)
-my_draw.text((80, 120), f"Game over : {score}", fill = (0, 0, 0))
-joystick.disp.image(my_image)
+while True:
+    my_image.paste(startImage)
+    my_draw.text((80, 120), f"Game over : {score}", fill = (0, 0, 0))
+    for i, logscore in enumerate(scores):
+        my_draw.text((80, 120 + 10 * i), f"{i + 1}위 : {logscore}", fill = (0, 0, 0))
+    joystick.disp.image(my_image)
+
+    if not joystick.button_A.value and prev_button_A:
+        print("다시 하기")
+        # prev_button_A = joystick.button_A.value
 
 # 기술, 완성도
