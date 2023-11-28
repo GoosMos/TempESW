@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 class Defender:
-    def __init__(self, width, height):
+    def __init__(self):
         self.position = np.array([120, 210, 150, 240])
         self.jump = False
         self.state = False

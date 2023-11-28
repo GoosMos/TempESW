@@ -2,10 +2,9 @@ import numpy as np
 # 좌상단 (0, 0), 우하단 (240, 240)
 
 class JungDeaMan:
-    def __init__(self, width, height) :
+    def __init__(self) :
         self.shoulderAngel = 45
         self.power = 12
-        self.appearance = 'circle'
         self.position = np.array([30, 210 , 40, 240])
 
 

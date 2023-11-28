@@ -49,6 +49,7 @@ class BasketBall:
         self.x += self.vx
         self.y -= self.vy
         self.vy -= self.gravity  # y축 방향의 속도를 업데이트
+        global score
 
         if defender.position[0] <= self.x <= defender.position[2] and \
         defender.position[1] <= self.y <= defender.position[3] :
@@ -70,14 +71,18 @@ class BasketBall:
         if hoop_position[0] <= self.x <= hoop_position[0] + 3 and \
         hoop_position[1] <= self.y <= hoop_position[3] :
             self.vx = -self.vx 
+            self.vy = -self.vy
+
+        if 237 < self.x <= 240 and \
+        hoop_position[1] <= self.y <= hoop_position[3] :
+            self.vx = -self.vx 
             self.vy = -self.vy 
         
         # 백보드와 충돌 처리
-        if hoop_position[0] + 3 < self.x <= hoop_position[2] and \
+        if hoop_position[0] + 3 < self.x <= hoop_position[2] - 3 and \
         hoop_position[1] <= self.y <= hoop_position[3] :
             self.vx = 0
             if not self.scored :
-                global score
                 score += 3
                 print("Score : ", score)
                 self.scored = True
@@ -93,9 +98,9 @@ class BasketBall:
 
 
 joystick = Joystick.Joystick()
-JungDaeMan = JungDeaMan.JungDeaMan(joystick.width, joystick.height) # 정대만
-defender = Defender.Defender(joystick.width, joystick.height) # 수비수
-balls = []
+# JungDaeMan = JungDeaMan.JungDeaMan() # 정대만
+# defender = Defender.Defender() # 수비수
+# balls = []
 
 ballImage = Image.open("/home/kau-esw/project/basketball.png").resize((10, 10))
 net = Image.open("/home/kau-esw/project/background.png").resize((240, 240))
@@ -106,12 +111,14 @@ DefenderImage = Image.open("/home/kau-esw/project/defense.png").resize((30, 30))
 # 이미지의 모드 설정 == 디스플레이 전체에 대한 초기화
 my_image = Image.new("RGB", (joystick.width, joystick.height)) 
 my_draw = ImageDraw.Draw(my_image)
-# my_draw.rectangle((0, 0, joystick.width, joystick.height), fill = (255, 255, 255, 100))
 prev_button_A = True
 
 while True:
     score = 0 # 총 점수 초기화
     LifeCount = 5 # 총 시도횟수 초기화
+    JungDaeMan = JungDeaMan.JungDeaMan() # 정대만
+    defender = Defender.Defender() # 수비수
+    balls = []
 
     while True:
         if not joystick.button_A.value and prev_button_A:
@@ -144,7 +151,6 @@ while True:
 
         if not joystick.button_A.value and prev_button_A:
             LifeCount -= 1
-            if LifeCount == -1: break
             print("남은 시도 횟수 : ", LifeCount)
             balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
         prev_button_A = joystick.button_A.value
@@ -175,6 +181,7 @@ while True:
 
         if LifeCount == -1: break
 
+
     while LifeCount >= 0 and len(balls) > 0: 
         # 게임이 끝났고, 아직 화면에 남아있는 공이 있을 경우
         command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
@@ -197,7 +204,7 @@ while True:
 
             if not joystick.button_A.value and prev_button_A:
                 LifeCount -= 1
-                print("남은 시도 횟수 : ", LifeCount)
+                print("남은 시도 횟수 : ", LifeCount)    
                 balls.append(BasketBall(JungDaeMan.position[0], JungDaeMan.position[1], JungDaeMan.power, JungDaeMan.shoulderAngel))
             prev_button_A = joystick.button_A.value
 
@@ -224,7 +231,10 @@ while True:
         if not joystick.button_A.value and prev_button_A:
             print("다시 하기")
             time.sleep(0.1)
+            JungDaeMan.position = np.array([30, 210 , 40, 240])
+            JungDaeMan.shoulderAngel = 45
+            JungDaeMan.power = 13
             break
-        
+
         prev_button_A = joystick.button_A.value
 
