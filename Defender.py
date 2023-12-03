@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 class Defender:
-    def __init__(self, width, height):
+    def __init__(self):
         self.position = np.array([120, 210, 150, 240])
         self.jump = False
         self.state = False
@@ -14,7 +14,7 @@ class Defender:
         self.position[0] = max(self.position[0], self.user_x + 15)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
         self.position[2] = max(self.position[2], self.user_x + 45)  # 수비수의 x축 위치는 항상 사용자의 x축 위치보다 큽니다.
         
-        temp = random.randint(-10, 5)
+        temp = random.randint(-10, 7)
         self.position[0] += temp
         self.position[2] += temp
 

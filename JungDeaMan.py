@@ -2,10 +2,9 @@ import numpy as np
 # 좌상단 (0, 0), 우하단 (240, 240)
 
 class JungDeaMan:
-    def __init__(self, width, height) :
+    def __init__(self) :
         self.shoulderAngel = 45
         self.power = 12
-        self.appearance = 'circle'
         self.position = np.array([30, 210 , 40, 240])
 
 
@@ -26,10 +25,10 @@ class JungDeaMan:
             if (self.position[0] != 0) : 
                 self.position[0] -= 5
                 self.position[2] -= 5
-            print("정대만의 파워 감소 ", self.power)
+            print("좌로 이동 ", self.power)
         
         if command['right_pressed']:
             if (self.position[0] != 120) : 
                 self.position[0] += 5
                 self.position[2] += 5
-            print("정대만의 파워 증가 ", self.power)
+            print("우로 이동 ", self.power)
